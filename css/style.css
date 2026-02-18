@@ -1,0 +1,709 @@
+/* ===========================================================
+   RESET & VARIABLES
+=========================================================== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --red:     #c8102e;
+  --red-dk:  #9b0b22;
+  --gold:    #d4af37;
+  --gold-lt: #f0d060;
+  --cream:   #fdf6ec;
+  --cream-dk:#f5e8d0;
+  --text:    #3a2a1a;
+  --text-lt: #7a5c3a;
+  --white:   #ffffff;
+  --shadow:  rgba(0,0,0,0.12);
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: 'Lora', serif; color: var(--text); background: var(--cream); overflow-x: hidden; }
+
+/* ===========================================================
+   HEARTS CANVAS (xuyen suot)
+=========================================================== */
+#hearts-canvas {
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 9999;
+  width: 100%; height: 100%;
+}
+
+/* ===========================================================
+   CURTAIN
+=========================================================== */
+#curtain {
+  position: fixed; inset: 0; z-index: 1000;
+  background: var(--red);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  transition: transform 1.3s cubic-bezier(.77,0,.18,1);
+  transform-origin: top center;
+}
+#curtain.open { transform: translateY(-100%); }
+#curtain::before, #curtain::after {
+  content: ''; position: absolute; left: 0; right: 0; height: 6px;
+  background: linear-gradient(90deg, transparent, var(--gold), var(--gold-lt), var(--gold), transparent);
+}
+#curtain::before { top: 0; }
+#curtain::after  { bottom: 0; }
+
+.curtain-inner { 
+  text-align: center; 
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  width: 100%; padding: 20px;
+}
+
+.song-hy-wrap {
+  width: min(240px, 52vw);
+  filter: drop-shadow(6px 10px 18px rgba(0,0,0,.4));
+  animation: float 3s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-14px); }
+}
+
+.curtain-title {
+  font-family: 'Great Vibes', cursive;
+  color: var(--gold-lt); font-size: clamp(2rem,6vw,3.5rem);
+  margin-top: 24px; letter-spacing: 2px;
+  text-shadow: 0 2px 12px rgba(0,0,0,.4);
+}
+.curtain-sub {
+  font-family: 'Lora', serif;
+  color: rgba(255,255,255,.8); font-size: clamp(1rem,3vw,1.4rem);
+  letter-spacing: 4px; margin-top: 8px;
+}
+.curtain-hint {
+  margin-top: 32px; color: rgba(255,255,255,.65);
+  font-family: 'Lora', serif;
+  font-size: .85rem; letter-spacing: 3px; text-transform: uppercase;
+  display: flex; align-items: center; justify-content: center; gap: 10px;
+  animation: pulse 2s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100%{opacity:.5} 50%{opacity:1} }
+.curtain-hint svg { animation: bounce 1.5s ease-in-out infinite; }
+@keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+
+/* ===========================================================
+   PAGE WRAPPER
+=========================================================== */
+#page { opacity: 0; transition: opacity .6s ease; }
+#page.visible { opacity: 1; }
+
+/* ===========================================================
+   SHARED UTILITIES
+=========================================================== */
+.gold-line {
+  width: 160px; height: 1px; margin: 18px auto;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+}
+.gold-line--left { margin-left: 0; }
+
+.section-tag {
+  font-family: 'Playfair Display', serif;
+  font-size: .7rem; letter-spacing: 5px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 10px;
+}
+.section-title {
+  font-family: 'Great Vibes', cursive;
+  font-size: clamp(2.2rem,6vw,3.5rem); color: var(--red-dk);
+}
+.section-text {
+  font-family: 'Lora', serif;
+  font-size: .95rem; line-height: 1.9; color: var(--text-lt);
+  font-style: italic; font-weight: 400; margin-top: 12px;
+}
+.section-header { text-align: center; margin-bottom: 50px; }
+
+/* Scroll reveal */
+.reveal { opacity: 0; transform: translateY(40px); transition: opacity .8s ease, transform .8s ease; }
+.reveal.visible { opacity: 1; transform: translateY(0); }
+
+/* ===========================================================
+   1. HERO SECTION - Anh tren + Thiep duoi
+=========================================================== */
+.hero-section {
+  background: var(--cream);
+  display: flex; flex-direction: column;
+}
+.hero-photo {
+  position: relative;
+  width: 100%; height: 65vh; min-height: 400px;
+  overflow: hidden;
+}
+.hero-photo svg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%; display: block;
+}
+.hero-photo-fade {
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 120px;
+  background: linear-gradient(to bottom, transparent, var(--cream));
+}
+.hero-card {
+  background: var(--cream);
+  text-align: center;
+  padding: 40px 24px 60px;
+  max-width: 600px;
+  margin: 0 auto; width: 100%;
+}
+.hero-songhy { margin-bottom: 20px; }
+.hero-invite-label {
+  font-family: 'Playfair Display', serif;
+  font-size: .72rem; letter-spacing: 5px; text-transform: uppercase;
+  color: var(--text-lt); margin-bottom: 4px;
+}
+.hero-invite-sub {
+  font-family: 'Lora', serif;
+  font-size: .9rem; color: var(--text-lt); font-style: italic;
+  margin-bottom: 16px;
+}
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem, 5vw, 2.8rem); color: var(--red-dk);
+  font-weight: 700; margin: 16px 0 8px;
+}
+.hero-names {
+  font-family: 'Great Vibes', cursive;
+  font-size: clamp(2rem, 6vw, 3.8rem); color: var(--red);
+  line-height: 1.2; margin-bottom: 8px;
+  white-space: nowrap;
+}
+@media (max-width: 520px) {
+  .hero-names { white-space: normal; }
+}
+.hero-names span { color: var(--gold); }
+.hero-body-text {
+  font-family: 'Lora', serif;
+  font-size: 1rem; line-height: 2; color: var(--text-lt);
+  font-style: italic; margin: 16px 0;
+}
+.hero-body-text strong { color: var(--red-dk); font-style: normal; font-weight: 600; }
+.hero-ornament {
+  color: var(--gold); font-size: 1rem; letter-spacing: 8px;
+  margin: 20px 0;
+}
+.hero-families {
+  display: flex; align-items: center; justify-content: center;
+  gap: 12px; flex-wrap: wrap;
+  font-family: 'Playfair Display', serif;
+  font-size: .85rem; color: var(--text-lt); letter-spacing: 2px;
+  margin-top: 8px;
+}
+.hero-scroll-hint {
+  font-family: 'Lora', serif;
+  margin-top: 36px; font-size: .8rem; letter-spacing: 3px;
+  color: var(--text-lt); opacity: .5;
+  animation: pulse 2.5s ease-in-out infinite;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform: translateY(30px); }
+  to   { opacity:1; transform: translateY(0); }
+}
+
+/* ===========================================================
+   2. INVITATION CARD
+=========================================================== */
+.invitation-card-section {
+  background: var(--cream);
+  padding: 80px 20px;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* Corner decorations */
+.card-corner {
+  position: absolute; width: 100px; height: 100px;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0 Q50 0 50 50 Q50 0 100 0' stroke='%23d4af37' stroke-width='1.5' fill='none'/%3E%3Ccircle cx='8' cy='8' r='3' fill='%23d4af37' opacity='.6'/%3E%3C/svg%3E");
+  background-size: contain; background-repeat: no-repeat; opacity: .4;
+}
+.card-corner--tl { top: 20px; left: 20px; }
+.card-corner--tr { top: 20px; right: 20px; transform: rotate(90deg); }
+.card-corner--bl { bottom: 20px; left: 20px; transform: rotate(270deg); }
+.card-corner--br { bottom: 20px; right: 20px; transform: rotate(180deg); }
+
+.card-body {
+  max-width: 680px; width: 100%;
+  background: white;
+  border: 1px solid rgba(212,175,55,.3);
+  border-radius: 20px;
+  padding: clamp(40px,8vw,80px) clamp(30px,6vw,60px);
+  box-shadow: 0 20px 80px rgba(155,11,34,.08), 0 4px 20px rgba(212,175,55,.1);
+  text-align: center;
+  position: relative;
+}
+.card-body::before {
+  content: '';
+  position: absolute; inset: 8px;
+  border: 1px solid rgba(212,175,55,.2);
+  border-radius: 14px; pointer-events: none;
+}
+
+.card-songhy { margin-bottom: 20px; }
+.card-invite-label {
+  font-family: 'Playfair Display', serif;
+  font-size: .72rem; letter-spacing: 5px; text-transform: uppercase;
+  color: var(--text-lt); margin-bottom: 10px;
+}
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem,4vw,2.4rem); color: var(--red-dk);
+  margin-bottom: 6px; font-weight: 700;
+}
+.card-names-big {
+  font-family: 'Great Vibes', cursive;
+  font-size: clamp(2.5rem,7vw,4rem); color: var(--red);
+  line-height: 1.1;
+}
+.card-names-big span { color: var(--gold); }
+
+.card-body-text {
+  font-family: 'Lora', serif;
+  font-size: .95rem; line-height: 1.9; color: var(--text-lt);
+  font-style: italic; margin: 16px 0;
+}
+.card-body-text strong { color: var(--red-dk); font-style: normal; font-weight: 600; }
+
+.card-divider-ornament {
+  color: var(--gold); font-size: 1.2rem; letter-spacing: 8px;
+  margin: 20px 0;
+}
+
+.card-families {
+  display: flex; align-items: center; justify-content: center;
+  gap: 16px; flex-wrap: wrap;
+  font-family: 'Playfair Display', serif;
+  font-size: .85rem; color: var(--text-lt); letter-spacing: 2px;
+}
+.amp-small { color: var(--gold); font-size: 1.4rem; }
+
+/* ===========================================================
+   3 & 4. PERSON SECTIONS (Chu re / Co dau)
+=========================================================== */
+.person-section { padding: 80px 20px; }
+.groom-section { background: var(--cream-dk); }
+.bride-section { background: var(--cream); }
+
+.person-inner {
+  max-width: 900px; margin: 0 auto;
+  display: flex; align-items: center; gap: 60px; flex-wrap: wrap;
+}
+.person-inner--reverse { flex-direction: row-reverse; }
+
+.person-photo-wrap {
+  flex: 0 0 280px; position: relative;
+}
+.person-photo-placeholder {
+  width: 280px; height: 380px; border-radius: 20px; overflow: hidden;
+  /* Khi co anh thuc: background: url('images/groom.jpg') center/cover; */
+}
+.person-photo-frame {
+  position: absolute; inset: -8px;
+  border: 2px solid rgba(212,175,55,.4);
+  border-radius: 26px; pointer-events: none;
+}
+
+.person-info { flex: 1; min-width: 240px; }
+.person-role {
+  font-family: 'Playfair Display', serif;
+  font-size: .7rem; letter-spacing: 5px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 8px;
+}
+.person-name {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(1.6rem,4vw,2.4rem); color: var(--red-dk);
+  margin-bottom: 4px; font-weight: 700;
+}
+.person-desc {
+  font-family: 'Lora', serif;
+  font-size: .95rem; line-height: 1.85; color: var(--text-lt);
+  font-style: italic; margin-top: 16px;
+}
+.person-tags {
+  display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px;
+}
+.person-tags span {
+  background: white; border: 1px solid rgba(212,175,55,.3);
+  border-radius: 20px; padding: 6px 14px;
+  font-size: .85rem; color: var(--text-lt);
+  box-shadow: 0 2px 8px rgba(212,175,55,.1);
+}
+
+/* ===========================================================
+   5. FAMILIES
+=========================================================== */
+.families-section {
+  padding: 80px 20px;
+  background: linear-gradient(135deg, var(--red-dk) 0%, var(--red) 100%);
+  color: white; text-align: center;
+}
+.families-section .section-tag { color: var(--gold-lt); }
+.families-section .section-title { color: white; }
+.families-section .gold-line { background: linear-gradient(90deg, transparent, var(--gold-lt), transparent); }
+
+.families-grid {
+  max-width: 760px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: center;
+  gap: 30px; flex-wrap: wrap;
+}
+.family-card {
+  background: rgba(255,255,255,.1); backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,.2);
+  border-radius: 20px; padding: 36px 32px;
+  flex: 1; min-width: 220px; max-width: 280px;
+  transition: transform .3s, box-shadow .3s;
+}
+.family-card:hover { transform: translateY(-6px); box-shadow: 0 16px 40px rgba(0,0,0,.2); }
+.family-icon { font-size: 2rem; margin-bottom: 12px; }
+.family-side {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem; color: var(--gold-lt); margin-bottom: 12px;
+  font-weight: 600; letter-spacing: 3px;
+}
+.family-divider {
+  width: 60px; height: 1px; margin: 12px auto;
+  background: rgba(240,208,96,.4);
+}
+.family-parent {
+  font-family: 'Lora', serif;
+  font-size: .9rem; color: rgba(255,255,255,.85); line-height: 1.8;
+}
+.parent-role { font-family: 'Playfair Display', serif; color: var(--gold-lt); font-size: .7rem; letter-spacing: 2px; text-transform: uppercase; }
+.family-address { margin-top: 12px; font-size: .85rem; color: rgba(255,255,255,.6); }
+.family-heart { font-size: 2.5rem; color: var(--gold-lt); flex-shrink: 0; }
+
+/* ===========================================================
+   6. STORY / TIMELINE
+=========================================================== */
+.story-section { padding: 80px 20px; background: var(--cream); }
+
+.timeline-v2 {
+  max-width: 1000px; margin: 0 auto;
+  position: relative; padding: 40px 0;
+}
+/* Center line */
+.timeline-v2::before {
+  content: '';
+  position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 2px;
+  background: linear-gradient(to bottom, transparent, var(--gold), transparent);
+  transform: translateX(-50%);
+}
+
+.tl2-item {
+  display: flex; align-items: center;
+  gap: 0; margin-bottom: 80px;
+  position: relative; width: 100%;
+}
+/* LEFT: content | dot | photo */
+.tl2-item--left  { flex-direction: row; }
+/* RIGHT: content | dot | photo -> bi dao thanh photo | dot | content */
+.tl2-item--right { flex-direction: row-reverse; }
+
+/* Content va photo chiem deu 2 ben */
+.tl2-content { flex: 1; padding: 0 40px; }
+.tl2-photo   { flex: 1; }
+
+/* Can chinh text huong vao truc giua */
+.tl2-item--left  .tl2-content { text-align: right; }
+.tl2-item--right .tl2-content { text-align: left; }
+
+.tl2-photo {
+  border-radius: 16px; overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0,0,0,.15);
+  aspect-ratio: 4/3;
+}
+.tl2-photo svg { display: block; width: 100%; height: 100%; }
+
+/* Dot nam trong flex, tu can giua nho align-items: center */
+.tl2-dot {
+  flex-shrink: 0;
+  width: 22px; height: 22px;
+  background: var(--gold); border-radius: 50%;
+  border: 4px solid white;
+  box-shadow: 0 0 0 5px rgba(212,175,55,.35);
+  z-index: 2;
+  position: relative;
+}
+/* Duong ke giua nam dung tai dot */
+.tl2-dot::before {
+  content: '';
+  position: absolute; left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px; height: 80px;
+  background: var(--gold);
+  opacity: .3; z-index: -1;
+}
+
+.tl2-date {
+  font-family: 'Playfair Display', serif;
+  font-size: .85rem; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--red); margin-bottom: 8px; font-weight: 600;
+}
+.tl2-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.6rem; color: var(--red-dk); margin-bottom: 12px; font-weight: 700;
+}
+.tl2-desc { 
+  font-family: 'Lora', serif; font-size: 1rem; line-height: 1.8; color: var(--text-lt);
+}
+
+/* ===========================================================
+   7. GALLERY
+=========================================================== */
+.gallery-section { padding: 80px 20px; background: var(--cream-dk); }
+
+.gallery-grid {
+  max-width: 1000px; margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(4, 200px);
+  gap: 12px;
+}
+
+/* Anh thuong: chiem 2 hang */
+.gallery-item {
+  border-radius: 14px; overflow: hidden;
+  position: relative; cursor: pointer;
+  transition: transform .3s, box-shadow .3s;
+  grid-row: span 2;
+}
+.gallery-item:hover {
+  transform: scale(1.02);
+  box-shadow: 0 12px 40px rgba(0,0,0,.25);
+}
+.gallery-item:hover .gallery-overlay { opacity: 1; }
+
+/* Anh tall: chiem 4 hang (toan bo chieu cao) */
+.gallery-item--tall { grid-row: span 4; }
+
+/* SVG fill day o */
+.gallery-item svg {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+}
+.gallery-overlay {
+  position: absolute; inset: 0;
+  background: rgba(155,11,34,.4);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .3s;
+  font-size: 2rem;
+}
+
+/* ===========================================================
+   8. EVENTS
+=========================================================== */
+.events-section { padding: 80px 20px; background: var(--cream); text-align: center; }
+
+.countdown-wrap { margin-bottom: 50px; }
+.countdown-label {
+  font-family: 'Playfair Display', serif;
+  font-size: .72rem; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--text-lt); margin-bottom: 20px;
+}
+.countdown {
+  display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;
+}
+.cd-box {
+  background: white; border: 1px solid rgba(212,175,55,.4);
+  border-radius: 14px; padding: 16px 22px;
+  box-shadow: 0 4px 20px rgba(212,175,55,.12);
+  min-width: 75px;
+}
+.cd-num { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 700; color: var(--red); line-height: 1; }
+.cd-lbl { font-family: 'Lora', serif; font-size: .6rem; letter-spacing: 2px; text-transform: uppercase; color: #9a7a5a; margin-top: 4px; }
+
+.event-cards {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+  gap: 20px; max-width: 800px; margin: 0 auto 40px;
+}
+.event-card {
+  background: white; border-radius: 16px; padding: 28px 20px;
+  border: 1px solid rgba(212,175,55,.3);
+  box-shadow: 0 6px 30px rgba(212,175,55,.1);
+  transition: transform .3s, box-shadow .3s;
+}
+.event-card:hover { transform: translateY(-6px); box-shadow: 0 12px 40px rgba(212,175,55,.2); }
+.event-icon { font-size: 2rem; margin-bottom: 12px; }
+.event-card h3 { font-family: 'Playfair Display', serif; font-size: .8rem; letter-spacing: 2px; text-transform: uppercase; color: var(--red); margin-bottom: 8px; font-weight: 600; }
+.event-card p { font-family: 'Lora', serif; font-size: .88rem; color: var(--text-lt); line-height: 1.7; }
+
+.map-wrap {
+  max-width: 800px; margin: 0 auto;
+  border-radius: 16px; overflow: hidden;
+  border: 3px solid rgba(212,175,55,.35);
+  box-shadow: 0 8px 32px rgba(0,0,0,.1);
+}
+.map-wrap iframe { display: block; width: 100%; height: 300px; border: none; }
+
+/* ===========================================================
+   9. RSVP
+=========================================================== */
+.rsvp-section {
+  padding: 80px 20px;
+  background: linear-gradient(135deg, #fdf0e0 0%, #fdf6ec 100%);
+}
+.rsvp-form {
+  max-width: 560px; margin: 0 auto;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.rsvp-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.rsvp-form input,
+.rsvp-form select,
+.rsvp-form textarea {
+  padding: 14px 18px; border-radius: 10px;
+  border: 1.5px solid rgba(212,175,55,.4);
+  font-family: 'Lora', serif; font-size: .95rem;
+  background: white; color: var(--text); outline: none;
+  transition: border-color .3s, box-shadow .3s;
+}
+.rsvp-form input:focus,
+.rsvp-form select:focus,
+.rsvp-form textarea:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px rgba(212,175,55,.15);
+}
+.rsvp-form textarea { resize: vertical; min-height: 110px; }
+.btn-rsvp {
+  padding: 16px; border-radius: 10px; border: none; cursor: pointer;
+  background: linear-gradient(135deg, var(--red), var(--red-dk));
+  color: white; font-family: 'Playfair Display', serif;
+  font-size: .9rem; letter-spacing: 4px; text-transform: uppercase;
+  transition: opacity .3s, transform .2s;
+}
+.btn-rsvp:hover { opacity: .88; transform: translateY(-2px); }
+
+/* ===========================================================
+   10. QR
+=========================================================== */
+.qr-section { padding: 80px 20px; background: var(--cream-dk); text-align: center; }
+.qr-cards {
+  display: flex; gap: 40px; justify-content: center; flex-wrap: wrap;
+  max-width: 700px; margin: 0 auto;
+}
+.qr-card {
+  background: white; border-radius: 20px; padding: 36px 28px;
+  border: 1px solid rgba(212,175,55,.3);
+  box-shadow: 0 8px 40px rgba(212,175,55,.12);
+  flex: 1; min-width: 220px; max-width: 280px;
+  transition: transform .3s;
+}
+.qr-card:hover { transform: translateY(-6px); }
+.qr-role {
+  font-family: 'Playfair Display', serif;
+  font-size: .65rem; letter-spacing: 4px; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 6px;
+}
+.qr-name {
+  font-family: 'Great Vibes', cursive;
+  font-size: 1.8rem; color: var(--red-dk); margin-bottom: 20px;
+}
+.qr-box {
+  background: #f8f8f8; border-radius: 12px; padding: 16px;
+  display: inline-block; margin-bottom: 16px;
+  border: 1px solid rgba(212,175,55,.2);
+}
+.qr-bank { font-family: 'Lora', serif; font-size: .85rem; color: var(--text-lt); margin-bottom: 4px; }
+.qr-account { font-family: 'Playfair Display', serif; font-size: .95rem; font-weight: 600; color: var(--red-dk); letter-spacing: 2px; }
+
+/* ===========================================================
+   FOOTER
+=========================================================== */
+.site-footer {
+  background: var(--red-dk); color: rgba(255,255,255,.85);
+  text-align: center; padding: 60px 20px;
+}
+.footer-songhy {
+  font-size: 3rem; color: var(--gold-lt);
+  margin-bottom: 12px; display: block;
+}
+.footer-names {
+  font-family: 'Great Vibes', cursive;
+  font-size: 3rem; color: var(--gold-lt);
+  display: block; margin-bottom: 8px;
+}
+.footer-date { font-family: 'Playfair Display', serif; font-size: .9rem; letter-spacing: 5px; margin-bottom: 8px; }
+.footer-wish { font-family: 'Lora', serif; font-size: .9rem; letter-spacing: 2px; margin-bottom: 20px; }
+.footer-credit { font-family: 'Lora', serif; font-size: .7rem; opacity: .4; letter-spacing: 2px; }
+
+/* ===========================================================
+   RESPONSIVE
+=========================================================== */
+@media (max-width: 900px) {
+  .section-title { font-size: 2.8rem; }
+  .hero-names { font-size: 2.4rem; }
+}
+
+@media (max-width: 700px) {
+  /* Giam padding cac section cho do dai */
+  .section-header { margin-bottom: 30px; }
+  .hero-card { padding-top: 24px; }
+  /* Can giua duong vang trong phan Chu re / Co dau khi mobile */
+  .person-info .gold-line--left { margin-left: auto; margin-right: auto; }
+  
+  .invitation-card-section,
+  .person-section,
+  .families-section,
+  .story-section,
+  .gallery-section,
+  .events-section,
+  .rsvp-section,
+  .qr-section {
+    padding: 50px 16px; 
+  }
+
+  /* Person sections */
+  .person-inner, .person-inner--reverse { 
+    flex-direction: column; 
+    gap: 30px;
+  }
+  .person-photo-wrap { flex: none; width: 100%; max-width: 400px; margin: 0 auto; }
+  .person-photo-placeholder { width: 100%; height: auto; aspect-ratio: 3/4; }
+  .person-info { text-align: center; }
+  .person-tags { justify-content: center; }
+
+  /* Timeline - 1 cot, duong ke trai */
+  .timeline-v2 { padding-left: 36px; }
+  .timeline-v2::before { left: 8px; transform: none; }
+  .tl2-item--left, .tl2-item--right { flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 40px; }
+  .tl2-photo { display: none; } /* An anh timeline tren mobile cho gon */
+  .tl2-dot { position: absolute; left: -32px; top: 4px; margin: 0; }
+  
+  /* Gallery */
+  .gallery-grid { grid-template-columns: 1fr 1fr; grid-auto-rows: 180px; gap: 8px; }
+  .gallery-item--tall { grid-column: span 2; grid-row: span 4; }
+
+  /* Event cards */
+  .event-cards { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto 30px; }
+
+  /* RSVP */
+  .rsvp-row { grid-template-columns: 1fr; }
+
+  /* Families */
+  .families-grid { flex-direction: column; align-items: center; gap: 20px; }
+  .family-heart { transform: rotate(90deg); margin: 10px 0; }
+  .family-card { max-width: 100%; width: 100%; padding: 24px; }
+
+  /* QR */
+  .qr-cards { gap: 24px; }
+}
+
+@media (max-width: 480px) {
+  .hero-names { font-size: 1.9rem; white-space: normal; }
+  .hero-title { font-size: 1.4rem; }
+  
+  .card-body { padding: 40px 20px; }
+  .card-title { font-size: 2rem; }
+  .card-names-big { font-size: 2.5rem; }
+
+  /* Gallery 1 cot */
+  .gallery-grid { grid-template-columns: 1fr; grid-auto-rows: 240px; }
+  .gallery-item--tall { grid-column: span 1; grid-row: span 2; }
+  
+  .countdown { gap: 8px; }
+  .cd-box { padding: 10px; min-width: 50px; flex: 1; }
+  .cd-num { font-size: 1.5rem; }
+  .cd-lbl { font-size: .5rem; }
+}
