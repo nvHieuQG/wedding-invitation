@@ -129,12 +129,18 @@ body { font-family: 'Lora', serif; color: var(--text); background: var(--cream);
 }
 .hero-photo {
   position: relative;
-  width: 100%; height: 65vh; min-height: 400px;
+  width: 100%;
+  height: 85vh;           /* chiều cao lớn để thấy nhiều ảnh hơn */
+  min-height: 500px;
   overflow: hidden;
 }
-.hero-photo svg {
+/* Ảnh bìa – tràn full, zoom để lấp đầy, không nền đen */
+.hero-photo-img {
   position: absolute; inset: 0;
-  width: 100%; height: 100%; display: block;
+  width: 100%; height: 100%;
+  object-fit: cover;      /* zoom & lấp đầy, không nền đen */
+  object-position: center top;
+  display: block;
 }
 .hero-photo-fade {
   position: absolute; bottom: 0; left: 0; right: 0;
@@ -295,8 +301,23 @@ body { font-family: 'Lora', serif; color: var(--text); background: var(--cream);
   flex: 0 0 280px; position: relative;
 }
 .person-photo-placeholder {
-  width: 280px; height: 380px; border-radius: 20px; overflow: hidden;
-  /* Khi co anh thuc: background: url('images/groom.jpg') center/cover; */
+  width: 280px;
+  aspect-ratio: 3 / 4;          /* giữ tỉ lệ ảnh dọc, chiều cao tự tính */
+  border-radius: 20px; overflow: hidden;
+  position: relative;
+  background: #1a0a0a;
+}
+/* Ảnh chú rể / cô dâu */
+.person-photo-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;            /* cover để ảnh đầy đẹp, không bị trắng */
+  object-position: center top;  /* ưu tiên phần đầu / mặt người */
+  display: block;
+  transition: transform .5s ease;
+}
+.person-photo-placeholder:hover .person-photo-img {
+  transform: scale(1.04);
 }
 .person-photo-frame {
   position: absolute; inset: -8px;
@@ -410,11 +431,23 @@ body { font-family: 'Lora', serif; color: var(--text); background: var(--cream);
 .tl2-item--right .tl2-content { text-align: left; }
 
 .tl2-photo {
+  flex: 1;
   border-radius: 16px; overflow: hidden;
   box-shadow: 0 10px 40px rgba(0,0,0,.15);
-  aspect-ratio: 4/3;
+  aspect-ratio: 4 / 3;          /* giữ tỉ lệ ngang, chiều cao tự tính */
+  position: relative;
+  background: #111;
 }
-.tl2-photo svg { display: block; width: 100%; height: 100%; }
+/* Ảnh timeline */
+.tl2-photo-img {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;            /* fill đầy, crop nhẹ 2 cạnh */
+  object-position: center;
+  display: block;
+  transition: transform .5s ease;
+}
+.tl2-photo:hover .tl2-photo-img { transform: scale(1.05); }
 
 /* Dot nam trong flex, tu can giua nho align-items: center */
 .tl2-dot {
@@ -458,8 +491,8 @@ body { font-family: 'Lora', serif; color: var(--text); background: var(--cream);
   max-width: 1000px; margin: 0 auto;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  grid-template-rows: repeat(4, 200px);
-  gap: 12px;
+  grid-template-rows: repeat(4, 180px); /* mỗi hàng = 180px → 2 hàng = 360px, 4 hàng = 720px */
+  gap: 10px;
 }
 
 /* Anh thuong: chiem 2 hang */
@@ -478,12 +511,16 @@ body { font-family: 'Lora', serif; color: var(--text); background: var(--cream);
 /* Anh tall: chiem 4 hang (toan bo chieu cao) */
 .gallery-item--tall { grid-row: span 4; }
 
-/* SVG fill day o */
-.gallery-item svg {
+/* Ảnh gallery – cover để lấp đầy ô, đây là chuẩn mực gallery */
+.gallery-img {
   position: absolute; inset: 0;
   width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 30%; /* ưu tiên vùng trên-giữa (mặt người) */
   display: block;
+  transition: transform .6s ease;
 }
+.gallery-item:hover .gallery-img { transform: scale(1.08); }
 .gallery-overlay {
   position: absolute; inset: 0;
   background: rgba(155,11,34,.4);
@@ -654,26 +691,48 @@ body { font-family: 'Lora', serif; color: var(--text); background: var(--cream);
     padding: 50px 16px; 
   }
 
-  /* Person sections */
+  /* Person sections – stack dọc trên mobile */
   .person-inner, .person-inner--reverse { 
     flex-direction: column; 
     gap: 30px;
   }
-  .person-photo-wrap { flex: none; width: 100%; max-width: 400px; margin: 0 auto; }
-  .person-photo-placeholder { width: 100%; height: auto; aspect-ratio: 3/4; }
+  .person-photo-wrap {
+    flex: none;
+    width: 100%; max-width: 360px;
+    margin: 0 auto;
+  }
+  /* Mobile: cho placeholder rộng 100%, aspect-ratio giữ tỉ lệ */
+  .person-photo-placeholder {
+    width: 100%;
+    /* aspect-ratio đã đặt ở base → tự giữ tỉ lệ, không cần height */
+  }
   .person-info { text-align: center; }
   .person-tags { justify-content: center; }
 
-  /* Timeline - 1 cot, duong ke trai */
+  /* Timeline mobile – hiển nhưng 1 cột */
   .timeline-v2 { padding-left: 36px; }
   .timeline-v2::before { left: 8px; transform: none; }
-  .tl2-item--left, .tl2-item--right { flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 40px; }
-  .tl2-photo { display: none; } /* An anh timeline tren mobile cho gon */
+  .tl2-item--left,
+  .tl2-item--right {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .tl2-photo {
+    display: block;              /* hiện lại trên mobile */
+    width: 100%;
+    aspect-ratio: 4 / 3;
+  }
   .tl2-dot { position: absolute; left: -32px; top: 4px; margin: 0; }
   
   /* Gallery */
-  .gallery-grid { grid-template-columns: 1fr 1fr; grid-auto-rows: 180px; gap: 8px; }
-  .gallery-item--tall { grid-column: span 2; grid-row: span 4; }
+  .gallery-grid {
+    grid-template-columns: 1fr 1fr;
+    grid-auto-rows: 180px;
+    gap: 8px;
+  }
+  .gallery-item--tall { grid-column: span 2; grid-row: span 3; }
 
   /* Event cards */
   .event-cards { grid-template-columns: 1fr; max-width: 400px; margin: 0 auto 30px; }

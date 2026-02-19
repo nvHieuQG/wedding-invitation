@@ -62,34 +62,12 @@
 
       <!-- Phần trên: Ảnh cặp đôi -->
       <div class="hero-photo">
-        <svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
-          <defs>
-            <linearGradient id="coverGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-              <stop offset="0%" style="stop-color:#9b0b22;stop-opacity:1"/>
-              <stop offset="100%" style="stop-color:#c8102e;stop-opacity:1"/>
-            </linearGradient>
-            <radialGradient id="glowGrad" cx="50%" cy="50%" r="50%">
-              <stop offset="0%" style="stop-color:#f0d060;stop-opacity:0.25"/>
-              <stop offset="100%" style="stop-color:#9b0b22;stop-opacity:0"/>
-            </radialGradient>
-          </defs>
-          <rect width="800" height="600" fill="url(#coverGrad)"/>
-          <ellipse cx="400" cy="300" rx="350" ry="260" fill="url(#glowGrad)"/>
-          <!-- Decorative circles -->
-          <circle cx="80"  cy="80"  r="50" fill="#d4af37" opacity="0.12"/>
-          <circle cx="720" cy="80"  r="50" fill="#d4af37" opacity="0.12"/>
-          <circle cx="80"  cy="520" r="50" fill="#d4af37" opacity="0.12"/>
-          <circle cx="720" cy="520" r="50" fill="#d4af37" opacity="0.12"/>
-          <!-- Couple silhouette -->
-          <ellipse cx="330" cy="310" rx="60" ry="150" fill="rgba(255,255,255,0.09)"/>
-          <ellipse cx="470" cy="310" rx="60" ry="150" fill="rgba(255,255,255,0.09)"/>
-          <circle  cx="330" cy="140" r="50"            fill="rgba(255,255,255,0.11)"/>
-          <circle  cx="470" cy="140" r="50"            fill="rgba(255,255,255,0.11)"/>
-          <!-- Heart -->
-          <path d="M400,240 C400,240 365,210 348,228 C331,246 348,275 400,305 C452,275 469,246 452,228 C435,210 400,240 400,240 Z" fill="#f0d060" opacity="0.55"/>
-          <!-- Placeholder text -->
-          <text x="400" y="490" text-anchor="middle" fill="rgba(255,255,255,0.45)" font-size="15" font-family="serif">[ Thay bằng ảnh cưới của cặp đôi ]</text>
-        </svg>
+        <img
+          src="images/cover/couple-main.jpg"
+          alt="Văn Cường &amp; Hải Lý"
+          class="hero-photo-img"
+          loading="eager"
+        />
         <!-- Gradient mờ dần xuống để hoà vào phần thiệp -->
         <div class="hero-photo-fade"></div>
       </div>
@@ -160,22 +138,13 @@
     <section id="groom" class="person-section groom-section">
       <div class="person-inner reveal">
         <div class="person-photo-wrap">
-          <!-- Placeholder ảnh chú rể -->
           <div class="person-photo-placeholder">
-            <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-              <defs>
-                <linearGradient id="groomGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style="stop-color:#1a0a05"/>
-                  <stop offset="100%" style="stop-color:#3a1a0a"/>
-                </linearGradient>
-              </defs>
-              <rect width="300" height="400" fill="url(#groomGrad)"/>
-              <circle cx="150" cy="130" r="70" fill="rgba(212,175,55,0.15)"/>
-              <ellipse cx="150" cy="320" rx="90" ry="110" fill="rgba(212,175,55,0.1)"/>
-              <circle cx="150" cy="120" r="55" fill="rgba(255,255,255,0.08)"/>
-              <ellipse cx="150" cy="310" rx="75" ry="100" fill="rgba(255,255,255,0.06)"/>
-              <text x="150" y="390" text-anchor="middle" fill="rgba(212,175,55,0.5)" font-size="11" font-family="serif">[ Ảnh chú rể ]</text>
-            </svg>
+            <img
+              src="images/groom/groom.jpg"
+              alt="Chú rể Nguyễn Văn Cường"
+              class="person-photo-img"
+              loading="lazy"
+            />
           </div>
           <div class="person-photo-frame"></div>
         </div>
@@ -188,7 +157,6 @@
             Người đã chọn Hải Lý làm bạn đồng hành suốt cuộc đời.
           </p>
           <div class="person-tags">
-            <span>💼 Nghề nghiệp</span>
             <span>🎂 DD/MM/YYYY</span>
             <span>📍 Quê quán</span>
           </div>
@@ -202,26 +170,13 @@
     <section id="bride" class="person-section bride-section">
       <div class="person-inner person-inner--reverse reveal">
         <div class="person-photo-wrap">
-          <!-- Placeholder ảnh cô dâu -->
           <div class="person-photo-placeholder">
-            <svg viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-              <defs>
-                <linearGradient id="brideGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                  <stop offset="0%" style="stop-color:#5a0a1a"/>
-                  <stop offset="100%" style="stop-color:#9b0b22"/>
-                </linearGradient>
-              </defs>
-              <rect width="300" height="400" fill="url(#brideGrad)"/>
-              <circle cx="150" cy="130" r="70" fill="rgba(240,208,96,0.15)"/>
-              <ellipse cx="150" cy="320" rx="90" ry="110" fill="rgba(240,208,96,0.1)"/>
-              <circle cx="150" cy="120" r="55" fill="rgba(255,255,255,0.08)"/>
-              <ellipse cx="150" cy="310" rx="75" ry="100" fill="rgba(255,255,255,0.06)"/>
-              <!-- Flowers hint -->
-              <circle cx="110" cy="75" r="12" fill="rgba(240,208,96,0.3)"/>
-              <circle cx="190" cy="75" r="12" fill="rgba(240,208,96,0.3)"/>
-              <circle cx="150" cy="60" r="12" fill="rgba(240,208,96,0.3)"/>
-              <text x="150" y="390" text-anchor="middle" fill="rgba(240,208,96,0.5)" font-size="11" font-family="serif">[ Ảnh cô dâu ]</text>
-            </svg>
+            <img
+              src="images/bride/bride.jpg"
+              alt="Cô dâu Mai Hải Lý"
+              class="person-photo-img"
+              loading="lazy"
+            />
           </div>
           <div class="person-photo-frame"></div>
         </div>
@@ -234,7 +189,6 @@
             Người đã chọn Văn Cường làm điểm tựa của cả cuộc đời.
           </p>
           <div class="person-tags">
-            <span>💼 Nghề nghiệp</span>
             <span>🎂 DD/MM/YYYY</span>
             <span>📍 Quê quán</span>
           </div>
@@ -305,11 +259,12 @@
           </div>
           <div class="tl2-dot"></div>
           <div class="tl2-photo">
-            <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-              <rect width="400" height="300" fill="#2a1a0a" rx="12"/>
-              <circle cx="200" cy="130" r="60" fill="rgba(212,175,55,0.15)"/>
-              <text x="200" y="230" text-anchor="middle" fill="rgba(212,175,55,0.4)" font-size="13" font-family="serif">[ Ảnh kỷ niệm ]</text>
-            </svg>
+            <img
+              src="images/story/story-1.jpg"
+              alt="Lần đầu gặp nhau"
+              class="tl2-photo-img"
+              loading="lazy"
+            />
           </div>
         </div>
 
@@ -322,11 +277,12 @@
           </div>
           <div class="tl2-dot"></div>
           <div class="tl2-photo">
-            <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-              <rect width="400" height="300" fill="#3a0a1a" rx="12"/>
-              <circle cx="200" cy="130" r="60" fill="rgba(240,208,96,0.15)"/>
-              <text x="200" y="230" text-anchor="middle" fill="rgba(240,208,96,0.4)" font-size="13" font-family="serif">[ Ảnh kỷ niệm ]</text>
-            </svg>
+            <img
+              src="images/story/story-2.jpg"
+              alt="Chính thức hẹn hò"
+              class="tl2-photo-img"
+              loading="lazy"
+            />
           </div>
         </div>
 
@@ -339,11 +295,12 @@
           </div>
           <div class="tl2-dot"></div>
           <div class="tl2-photo">
-            <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-              <rect width="400" height="300" fill="#0a1a2a" rx="12"/>
-              <circle cx="200" cy="130" r="60" fill="rgba(212,175,55,0.15)"/>
-              <text x="200" y="230" text-anchor="middle" fill="rgba(212,175,55,0.4)" font-size="13" font-family="serif">[ Ảnh kỷ niệm ]</text>
-            </svg>
+            <img
+              src="images/story/story-3.jpg"
+              alt="Chuyến du lịch đầu tiên"
+              class="tl2-photo-img"
+              loading="lazy"
+            />
           </div>
         </div>
 
@@ -356,11 +313,12 @@
           </div>
           <div class="tl2-dot"></div>
           <div class="tl2-photo">
-            <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
-              <rect width="400" height="300" fill="#1a0a2a" rx="12"/>
-              <circle cx="200" cy="130" r="60" fill="rgba(240,208,96,0.15)"/>
-              <text x="200" y="230" text-anchor="middle" fill="rgba(240,208,96,0.4)" font-size="13" font-family="serif">[ Ảnh kỷ niệm ]</text>
-            </svg>
+            <img
+              src="images/story/story-4.jpg"
+              alt="Lời cầu hôn"
+              class="tl2-photo-img"
+              loading="lazy"
+            />
           </div>
         </div>
 
@@ -381,57 +339,63 @@
 
         <!-- Hàng 1: ảnh lớn bên trái + 2 ảnh nhỏ bên phải -->
         <div class="gallery-item gallery-item--tall">
-          <svg viewBox="0 0 400 560" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
-            <rect width="400" height="560" fill="#2a0a0a"/>
-            <circle cx="200" cy="240" r="100" fill="rgba(212,175,55,0.12)"/>
-            <text x="200" y="360" text-anchor="middle" fill="rgba(212,175,55,0.45)" font-size="14" font-family="serif">[ Ảnh 1 ]</text>
-          </svg>
+          <img
+            src="images/gallery/gallery-1.jpg"
+            alt="Khoảnh khắc 1"
+            class="gallery-img"
+            loading="lazy"
+          />
           <div class="gallery-overlay"><span>💕</span></div>
         </div>
 
         <div class="gallery-item">
-          <svg viewBox="0 0 400 270" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
-            <rect width="400" height="270" fill="#0a1a0a"/>
-            <circle cx="200" cy="115" r="70" fill="rgba(212,175,55,0.12)"/>
-            <text x="200" y="200" text-anchor="middle" fill="rgba(212,175,55,0.45)" font-size="14" font-family="serif">[ Ảnh 2 ]</text>
-          </svg>
+          <img
+            src="images/gallery/gallery-2.jpg"
+            alt="Khoảnh khắc 2"
+            class="gallery-img"
+            loading="lazy"
+          />
           <div class="gallery-overlay"><span>💕</span></div>
         </div>
 
         <div class="gallery-item">
-          <svg viewBox="0 0 400 270" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
-            <rect width="400" height="270" fill="#0a0a1a"/>
-            <circle cx="200" cy="115" r="70" fill="rgba(240,208,96,0.12)"/>
-            <text x="200" y="200" text-anchor="middle" fill="rgba(240,208,96,0.45)" font-size="14" font-family="serif">[ Ảnh 3 ]</text>
-          </svg>
+          <img
+            src="images/gallery/gallery-3.jpg"
+            alt="Khoảnh khắc 3"
+            class="gallery-img"
+            loading="lazy"
+          />
           <div class="gallery-overlay"><span>💕</span></div>
         </div>
 
         <!-- Hàng 2: 2 ảnh nhỏ bên trái + ảnh lớn bên phải -->
         <div class="gallery-item">
-          <svg viewBox="0 0 400 270" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
-            <rect width="400" height="270" fill="#1a0a1a"/>
-            <circle cx="200" cy="115" r="70" fill="rgba(212,175,55,0.12)"/>
-            <text x="200" y="200" text-anchor="middle" fill="rgba(212,175,55,0.45)" font-size="14" font-family="serif">[ Ảnh 4 ]</text>
-          </svg>
+          <img
+            src="images/gallery/gallery-4.jpg"
+            alt="Khoảnh khắc 4"
+            class="gallery-img"
+            loading="lazy"
+          />
           <div class="gallery-overlay"><span>💕</span></div>
         </div>
 
         <div class="gallery-item">
-          <svg viewBox="0 0 400 270" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
-            <rect width="400" height="270" fill="#1a1a0a"/>
-            <circle cx="200" cy="115" r="70" fill="rgba(240,208,96,0.12)"/>
-            <text x="200" y="200" text-anchor="middle" fill="rgba(240,208,96,0.45)" font-size="14" font-family="serif">[ Ảnh 5 ]</text>
-          </svg>
+          <img
+            src="images/gallery/gallery-5.jpg"
+            alt="Khoảnh khắc 5"
+            class="gallery-img"
+            loading="lazy"
+          />
           <div class="gallery-overlay"><span>💕</span></div>
         </div>
 
         <div class="gallery-item gallery-item--tall">
-          <svg viewBox="0 0 400 560" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" preserveAspectRatio="xMidYMid slice">
-            <rect width="400" height="560" fill="#0a1a1a"/>
-            <circle cx="200" cy="240" r="100" fill="rgba(212,175,55,0.12)"/>
-            <text x="200" y="360" text-anchor="middle" fill="rgba(212,175,55,0.45)" font-size="14" font-family="serif">[ Ảnh 6 ]</text>
-          </svg>
+          <img
+            src="images/gallery/gallery-6.jpg"
+            alt="Khoảnh khắc 6"
+            class="gallery-img"
+            loading="lazy"
+          />
           <div class="gallery-overlay"><span>💕</span></div>
         </div>
 
