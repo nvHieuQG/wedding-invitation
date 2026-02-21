@@ -60,15 +60,16 @@
     ══════════════════════════════════════ -->
     <section id="cover" class="hero-section">
 
-      <!-- Phần trên: Ảnh cặp đôi -->
-      <div class="hero-photo">
-        <img
-          src="images/cover/couple-main.jpg"
-          alt="Văn Cường &amp; Hải Lý"
-          class="hero-photo-img"
-          loading="eager"
-        />
-        <!-- Gradient mờ dần xuống để hoà vào phần thiệp -->
+      <!-- Phần trên: Ảnh cặp đôi slider (Hỗ trợ lướt tay) -->
+      <div class="hero-photo" id="hero-slider">
+        <div class="hero-slider-track" id="hero-track">
+          <div class="hero-slide"><img src="images/cover/couple-main.jpg" alt="Văn Cường & Hải Lý" class="hero-photo-img" loading="eager" /></div>
+          <div class="hero-slide"><img src="images/gallery/gallery-1.jpg" alt="Văn Cường & Hải Lý" class="hero-photo-img" loading="lazy" /></div>
+          <div class="hero-slide"><img src="images/gallery/gallery-2.jpg" alt="Văn Cường & Hải Lý" class="hero-photo-img" loading="lazy" /></div>
+        </div>
+        <!-- Chỉ báo chấm -->
+        <div class="hero-slider-dots" id="hero-dots"></div>
+        <!-- Gradient mờ dần xuống -->
         <div class="hero-photo-fade"></div>
       </div>
 
@@ -337,8 +338,8 @@
       </div>
       <div class="gallery-grid reveal">
 
-        <!-- Hàng 1: ảnh lớn bên trái + 2 ảnh nhỏ bên phải -->
-        <div class="gallery-item gallery-item--tall">
+        <!-- Cot 1: anh tall chiem 2 hang -->
+        <div class="gallery-item">
           <img
             src="images/gallery/gallery-1.jpg"
             alt="Khoảnh khắc 1"
@@ -348,6 +349,7 @@
           <div class="gallery-overlay"><span>💕</span></div>
         </div>
 
+        <!-- Cot 2 + 3: hang 1 -->
         <div class="gallery-item">
           <img
             src="images/gallery/gallery-2.jpg"
@@ -368,7 +370,7 @@
           <div class="gallery-overlay"><span>💕</span></div>
         </div>
 
-        <!-- Hàng 2: 2 ảnh nhỏ bên trái + ảnh lớn bên phải -->
+        <!-- Cot 2 + 3: hang 2 -->
         <div class="gallery-item">
           <img
             src="images/gallery/gallery-4.jpg"
@@ -389,10 +391,42 @@
           <div class="gallery-overlay"><span>💕</span></div>
         </div>
 
-        <div class="gallery-item gallery-item--tall">
+        <!-- Anh thu 6 -->
+        <div class="gallery-item">
           <img
             src="images/gallery/gallery-6.jpg"
             alt="Khoảnh khắc 6"
+            class="gallery-img"
+            loading="lazy"
+          />
+          <div class="gallery-overlay"><span>💕</span></div>
+        </div>
+
+        <!-- Hang 3: them 3 anh ngang de lap day khoang trong -->
+        <div class="gallery-item">
+          <img
+            src="images/gallery/gallery-3.jpg"
+            alt="Khoảnh khắc 7"
+            class="gallery-img"
+            loading="lazy"
+          />
+          <div class="gallery-overlay"><span>💕</span></div>
+        </div>
+
+        <div class="gallery-item">
+          <img
+            src="images/gallery/gallery-1.jpg"
+            alt="Khoảnh khắc 8"
+            class="gallery-img"
+            loading="lazy"
+          />
+          <div class="gallery-overlay"><span>💕</span></div>
+        </div>
+
+        <div class="gallery-item">
+          <img
+            src="images/gallery/gallery-2.jpg"
+            alt="Khoảnh khắc 9"
             class="gallery-img"
             loading="lazy"
           />
