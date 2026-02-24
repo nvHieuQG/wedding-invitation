@@ -293,16 +293,219 @@ const revealObserver = new IntersectionObserver((entries) => {
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
 /* ─────────────────────────────────────────────────────────
-   RSVP – Xác nhận tham dự
+   RSVP – Xác nhận tham dự + Lưu vào localStorage
 ───────────────────────────────────────────────────────── */
+function showRSVPToast(name, attend) {
+  const overlay  = document.getElementById('rsvp-toast-overlay');
+  const box      = document.getElementById('rsvp-toast-box');
+  const iconEl   = document.getElementById('rsvp-toast-icon');
+  const titleEl  = document.getElementById('rsvp-toast-title-text');
+  const nameEl   = document.getElementById('rsvp-toast-name');
+  const msgEl    = document.getElementById('rsvp-toast-msg');
+  const heartsEl = document.getElementById('rsvp-toast-hearts');
+
+  if (attend === 'yes') {
+    box.classList.remove('decline');
+    iconEl.textContent   = '🎊';
+    titleEl.textContent  = 'Tuyệt vời!';
+    nameEl.textContent   = name;
+    msgEl.textContent    = 'Chúng tôi rất vui khi biết bạn sẽ tham dự lễ cưới. Hẹn gặp bạn trong ngày trọng đại!';
+    heartsEl.textContent = '💕 ❤️ 💍 ❤️ 💕';
+  } else if (attend === 'no') {
+    box.classList.add('decline');
+    iconEl.textContent   = '�';
+    titleEl.textContent  = 'Cảm ơn bạn!';
+    nameEl.textContent   = name;
+    msgEl.textContent    = 'Chúng tôi rất tiếc khi bạn không thể đến. Chúc bạn mọi điều tốt lành và hạnh phúc!';
+    heartsEl.textContent = '🌸 ✨ 🌷 ✨ 🌸';
+  } else {
+    box.classList.remove('decline');
+    iconEl.textContent   = '💌';
+    titleEl.textContent  = 'Đã nhận được!';
+    nameEl.textContent   = name;
+    msgEl.textContent    = 'Cảm ơn bạn đã gửi phản hồi. Chúng tôi rất mong sớm được gặp bạn!';
+    heartsEl.textContent = '💕 ❤️ 💕';
+  }
+
+  // Re-trigger icon animation
+  iconEl.style.animation = 'none';
+  requestAnimationFrame(() => { iconEl.style.animation = ''; });
+
+  overlay.classList.add('show');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeRSVPToast() {
+  const overlay = document.getElementById('rsvp-toast-overlay');
+  if (overlay) overlay.classList.remove('show');
+  document.body.style.overflow = '';
+}
+
+// Khởi tạo sự kiện đóng toast
+(function initRSVPToast() {
+  const btn     = document.getElementById('rsvp-toast-close');
+  const overlay = document.getElementById('rsvp-toast-overlay');
+  if (btn)     btn.addEventListener('click', closeRSVPToast);
+  if (overlay) overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) closeRSVPToast();
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeRSVPToast();
+  });
+})();
+
 function submitRSVP(e) {
   e.preventDefault();
-  const name   = document.getElementById('rsvp-name').value;
+  const name   = document.getElementById('rsvp-name').value.trim();
+  const phone  = document.getElementById('rsvp-phone').value.trim();
   const attend = document.getElementById('rsvp-attend').value;
-  const msg    = attend === 'yes'
-    ? `Cảm ơn ${name}! 💌\nChúng tôi rất vui khi bạn sẽ tham dự.\nHẹn gặp bạn trong ngày vui! 🎊`
-    : `Cảm ơn ${name} đã phản hồi! 💌\nChúng tôi rất tiếc khi bạn không thể đến.\nChúc bạn mọi điều tốt lành! 🌸`;
-  alert(msg);
+  const guests = document.getElementById('rsvp-guests').value || '0';
+  const msg    = document.getElementById('rsvp-msg').value.trim();
+
+  // Lưu vào localStorage
+  const rsvpList = JSON.parse(localStorage.getItem('wedding_rsvp') || '[]');
+  rsvpList.push({
+    id:      Date.now(),
+    name,
+    phone,
+    attend,
+    guests:  parseInt(guests, 10) || 0,
+    message: msg,
+    time:    new Date().toISOString(),
+  });
+  localStorage.setItem('wedding_rsvp', JSON.stringify(rsvpList));
+
+  // Hiển thị toast đẹp
+  showRSVPToast(name || 'bạn', attend);
   e.target.reset();
 }
 
+
+/* ─────────────────────────────────────────────────────────
+   LIGHTBOX – Xem ảnh phóng to khi click
+───────────────────────────────────────────────────────── */
+(function initLightbox() {
+  // ── 1. Tạo HTML overlay ──────────────────────────────────
+  const overlay = document.createElement('div');
+  overlay.className = 'lightbox-overlay';
+  overlay.id = 'lightbox';
+  overlay.innerHTML = `
+    <div class="lightbox-content" id="lb-content">
+      <img class="lightbox-img" id="lb-img" src="" alt="">
+    </div>
+    <button class="lightbox-close" id="lb-close" aria-label="Đóng">&#x2715;</button>
+    <button class="lightbox-btn lightbox-prev" id="lb-prev" aria-label="Ảnh trước">&#8592;</button>
+    <button class="lightbox-btn lightbox-next" id="lb-next" aria-label="Ảnh tiếp">&#8594;</button>
+    <div class="lightbox-caption" id="lb-caption"></div>
+    <div class="lightbox-counter" id="lb-counter"></div>
+  `;
+  document.body.appendChild(overlay);
+
+  // ── 2. Danh sách ảnh (thu thập tất cả ảnh có thể click) ──
+  let images = [];  // [{src, alt}]
+  let current = 0;
+
+  function collectImages() {
+    const selectors = [
+      '.gallery-img',               // Gallery section
+      '.tl2-photo-img',             // Timeline
+      '.person-photo-img',          // Chú rể / Cô dâu
+    ];
+    images = [];
+    document.querySelectorAll(selectors.join(',')).forEach(function(img) {
+      var idx = images.length;
+      images.push({ src: img.src, alt: img.alt || '' });
+      var parent = img.closest('.gallery-item, .tl2-photo, .person-photo-placeholder');
+      if (parent && !parent.dataset.lbBound) {
+        parent.dataset.lbBound = '1';
+        parent.style.cursor = 'zoom-in';
+        (function(i){ parent.addEventListener('click', function() { openLightbox(i); }); })(idx);
+      }
+    });
+    if (images.length <= 1) overlay.classList.add('single');
+    else overlay.classList.remove('single');
+  }
+
+  // ── 3. Mở / đóng lightbox ───────────────────────────────
+  var lbImg     = document.getElementById('lb-img');
+  var lbCaption = document.getElementById('lb-caption');
+  var lbCounter = document.getElementById('lb-counter');
+
+  function openLightbox(index) {
+    current = index;
+    renderImage();
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeLightbox() {
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    setTimeout(function() { lbImg.src = ''; }, 400);
+  }
+
+  function renderImage() {
+    var item = images[current];
+    lbImg.style.opacity = '0';
+    lbImg.style.transition = 'none';
+    lbImg.src = item.src;
+    lbImg.alt = item.alt;
+    lbImg.onload = function() {
+      lbImg.style.transition = 'opacity 0.28s ease';
+      lbImg.style.opacity = '1';
+    };
+    lbCaption.textContent = item.alt;
+    lbCounter.textContent = images.length > 1 ? (current + 1) + ' / ' + images.length : '';
+  }
+
+  function showPrev() {
+    current = (current - 1 + images.length) % images.length;
+    renderImage();
+  }
+  function showNext() {
+    current = (current + 1) % images.length;
+    renderImage();
+  }
+
+  // ── 4. Sự kiện buttons ──────────────────────────────────
+  document.getElementById('lb-close').addEventListener('click', closeLightbox);
+  document.getElementById('lb-prev').addEventListener('click', showPrev);
+  document.getElementById('lb-next').addEventListener('click', showNext);
+
+  // Click vào background để đóng
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay || e.target.id === 'lb-content') closeLightbox();
+  });
+
+  // ── 5. Phím tắt ─────────────────────────────────────────
+  document.addEventListener('keydown', function(e) {
+    if (!overlay.classList.contains('active')) return;
+    if (e.key === 'Escape')     closeLightbox();
+    if (e.key === 'ArrowLeft')  showPrev();
+    if (e.key === 'ArrowRight') showNext();
+  });
+
+  // ── 6. Swipe trên mobile ─────────────────────────────────
+  var touchStartX = 0;
+  overlay.addEventListener('touchstart', function(e) {
+    touchStartX = e.touches[0].clientX;
+  }, { passive: true });
+  overlay.addEventListener('touchend', function(e) {
+    var diff = touchStartX - e.changedTouches[0].clientX;
+    if (Math.abs(diff) > 50) { if (diff > 0) showNext(); else showPrev(); }
+  });
+
+  // ── 7. Khởi tạo: chờ page visible (sau khi mở màn) ─────
+  var pageEl = document.getElementById('page');
+  if (pageEl && pageEl.classList.contains('visible')) {
+    collectImages();
+  } else {
+    var mo = new MutationObserver(function() {
+      if (pageEl && pageEl.classList.contains('visible')) {
+        collectImages();
+        mo.disconnect();
+      }
+    });
+    mo.observe(pageEl || document.body, { attributes: true, attributeFilter: ['class'], subtree: true });
+  }
+})();

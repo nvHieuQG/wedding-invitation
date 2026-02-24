@@ -1,0 +1,13 @@
+Options -Indexes
+RewriteEngine On
+
+# ── Cho phép truy cập file/thư mục thực tế ──────────────
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# ── /mn_invitation  →  admin.html ───────────────────────
+RewriteRule ^mn_invitation/?$ admin.html [L]
+
+# ── / hoặc /index  →  index.html ────────────────────────
+RewriteRule ^index/?$ index.html [L]
