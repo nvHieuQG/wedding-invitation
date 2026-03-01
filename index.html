@@ -5,6 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Thiệp Mời Cưới – Văn Cường &amp; Hải Lý</title>
   <meta name="description" content="Trân trọng kính mời bạn đến dự lễ thành hôn của Văn Cường và Hải Lý" />
+
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💍</text></svg>" />
+
+  <!-- Open Graph (share Zalo / Facebook đẹp) -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:title"       content="Thiệp Mời Cưới – Văn Cường &amp; Hải Lý" />
+  <meta property="og:description" content="Trân trọng kính mời bạn đến dự lễ thành hôn của Văn Cường và Hải Lý" />
+  <meta property="og:image"       content="images/cover/couple-main.jpg" />
+  <meta name="twitter:card"       content="summary_large_image" />
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Great+Vibes&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
@@ -15,7 +26,7 @@
   <!-- ██████████████████████████████████████████
        CURTAIN – Màn kéo Song Hỷ
   ██████████████████████████████████████████ -->
-  <div id="curtain" onclick="openCurtain()">
+  <div id="curtain" role="button" tabindex="0" aria-label="Nhấn để mở thiệp cưới" onclick="openCurtain()">
     <div class="curtain-inner">
       <div class="song-hy-wrap">
         <svg viewBox="0 0 300 280" xmlns="http://www.w3.org/2000/svg" fill="white">
@@ -494,7 +505,7 @@
           Vui lòng xác nhận trước ngày <strong>DD/MM/YYYY</strong>.
         </p>
       </div>
-      <form class="rsvp-form reveal" onsubmit="submitRSVP(event)">
+      <form class="rsvp-form reveal" id="rsvp-form">
         <div class="rsvp-row">
           <input type="text"   id="rsvp-name"   placeholder="Họ và tên của bạn ✦" required />
           <input type="tel"    id="rsvp-phone"  placeholder="Số điện thoại ✦" />
@@ -629,7 +640,7 @@
   </div>
 
   <!-- Hearts canvas -->
-  <canvas id="hearts-canvas"></canvas>
+  <canvas id="hearts-canvas" aria-hidden="true"></canvas>
 
   <script src="js/main.js"></script>
 </body>

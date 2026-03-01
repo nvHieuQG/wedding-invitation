@@ -3,6 +3,15 @@
 ═══════════════════════════════════════════════════════════ */
 
 /* ─────────────────────────────────────────────────────────
+   CONSTANTS
+───────────────────────────────────────────────────────── */
+const AUTOPLAY_MS        = 5000;   // Hero slider tự động chuyển mỗi X ms
+const SWIPE_THRESHOLD    = 80;     // Kéo tối thiểu để chuyển slide (px)
+const HEART_SPAWN_CHANCE = 0.05;   // Xác suất sinh tim mỗi frame
+const HEART_MAX          = 60;     // Số tim tối đa đồng thời
+const REVEAL_THRESHOLD   = 0.12;   // Ngưỡng IntersectionObserver
+
+/* ─────────────────────────────────────────────────────────
    HEARTS CANVAS – Trái tim rơi xuyên suốt
 ───────────────────────────────────────────────────────── */
 const canvas       = document.getElementById('hearts-canvas');
@@ -56,7 +65,7 @@ function animateHearts() {
   if (!heartsRunning) return;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  if (Math.random() < 0.05) hearts.push(createHeart());
+  if (Math.random() < HEART_SPAWN_CHANCE && hearts.length < HEART_MAX) hearts.push(createHeart());
 
   hearts = hearts.filter(h => h.y < canvas.height + 30);
   hearts.forEach(h => {
@@ -91,6 +100,19 @@ function openCurtain() {
 
   startHearts();
 }
+
+/* Curtain: hỗ trợ mở bằng bàn phím (Enter / Space) - onclick xử lý click trong HTML */
+document.addEventListener('DOMContentLoaded', function() {
+  var curtain = document.getElementById('curtain');
+  if (curtain) {
+    curtain.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openCurtain();
+      }
+    });
+  }
+});
 
 /* ─────────────────────────────────────────────────────────
    HERO SLIDER – Chuyển đổi ảnh bìa tự động
@@ -175,8 +197,8 @@ function initHeroSlider() {
     isDragging = false;
     const movedBy = currentTranslate - prevTranslate;
 
-    if (movedBy < -80) currentIndex++;
-    else if (movedBy > 80) currentIndex--;
+    if (movedBy < -SWIPE_THRESHOLD) currentIndex++;
+    else if (movedBy > SWIPE_THRESHOLD) currentIndex--;
 
     goToSlide(currentIndex);
     startAutoPlay();
@@ -213,6 +235,7 @@ function initHeroSlider() {
       updateSliderPosition(false);
     }
     updateDots();
+    applyKenBurns();
   }
 
   function updateSliderPosition(animate = true) {
@@ -236,10 +259,17 @@ function initHeroSlider() {
     clearInterval(autoPlayTimer);
     autoPlayTimer = setInterval(() => {
       goToSlide(currentIndex + 1);
-    }, 5000);
+    }, AUTOPLAY_MS);
+  }
+
+  /* Ken Burns: thêm class zoom cho slide đang active */
+  function applyKenBurns() {
+    slides.forEach(s => s.classList.remove('kb-active'));
+    if (slides[currentIndex]) slides[currentIndex].classList.add('kb-active');
   }
 
   startAutoPlay();
+  applyKenBurns();
   
   // Clean up on resize
   window.addEventListener('resize', () => {
@@ -288,7 +318,7 @@ const revealObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) entry.target.classList.add('visible');
   });
-}, { threshold: 0.12 });
+}, { threshold: REVEAL_THRESHOLD });
 
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
@@ -362,6 +392,13 @@ function submitRSVP(e) {
   const guests = document.getElementById('rsvp-guests').value || '0';
   const msg    = document.getElementById('rsvp-msg').value.trim();
 
+  // Validate số điện thoại nếu có điền
+  if (phone && !/^[0-9+\-\s()]{7,15}$/.test(phone)) {
+    alert('Số điện thoại không hợp lệ. Vui lòng kiểm tra lại.');
+    document.getElementById('rsvp-phone').focus();
+    return;
+  }
+
   // Lưu vào localStorage
   const rsvpList = JSON.parse(localStorage.getItem('wedding_rsvp') || '[]');
   rsvpList.push({
@@ -379,6 +416,12 @@ function submitRSVP(e) {
   showRSVPToast(name || 'bạn', attend);
   e.target.reset();
 }
+
+/* Gắn sự kiện submit form qua addEventListener (thay inline onsubmit) */
+(function initRSVPForm() {
+  const form = document.getElementById('rsvp-form');
+  if (form) form.addEventListener('submit', submitRSVP);
+})();
 
 
 /* ─────────────────────────────────────────────────────────
