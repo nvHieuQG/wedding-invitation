@@ -3,48 +3,17 @@
    Văn Cường & Hải Lý
 =========================================================== */
 
-/* ── 🔐 Bảo mật: Yêu cầu mật khẩu ─────────────────────── */
-// ── Tất cả logic đặt trong window.onload để đảm bảo DOM sẵn sàng ──
+// Khởi tạo trang admin khi load xong
 window.addEventListener('load', function() {
-
-  /* ── 🔐 Bảo mật: Yêu cầu mật khẩu ──────────────────────── */
-  // ⚠️ ĐỔI MẬT KHẨU NÀY trước khi deploy!
-  const ADMIN_PASSWORD = 'wedding2025';
-
-  if (sessionStorage.getItem('admin_auth') !== '1') {
-    const pw = prompt('🔐 Nhập mật khẩu để vào trang quản lý:');
-    if (pw !== ADMIN_PASSWORD) {
-      document.body.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;
-          justify-content:center;min-height:100vh;font-family:sans-serif;
-          color:#3a2a1a;gap:16px;background:#fdf6ec;">
-          <div style="font-size:4rem;">🔒</div>
-          <h1 style="font-size:1.5rem;color:#9b0b22;">Truy cập bị từ chối</h1>
-          <p style="color:#7a5c3a;">Sai mật khẩu. Bạn không có quyền truy cập trang này.</p>
-          <a href="../index.html" style="color:#c8102e;font-weight:600;text-decoration:none;
-            padding:12px 24px;border:2px solid #c8102e;border-radius:8px;margin-top:8px;">
-            ← Về trang thiệp mời
-          </a>
-        </div>`;
-      return; // Dừng toàn bộ logic, không khởi tạo gì thêm
-    }
-    sessionStorage.setItem('admin_auth', '1');
-  }
-
-  // ── Xác thực thành công → khởi tạo trang ──
   initAdmin();
-
 });
 
 
-/* ── Constants ───────────────────────────────────────────── */
 const KEY = 'wedding_rsvp';
 
-/* ── Data helpers ────────────────────────────────────────── */
 function loadData()    { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
 function saveData(arr) { localStorage.setItem(KEY, JSON.stringify(arr)); }
 
-/* ── Format thời gian ────────────────────────────────────── */
 function formatTime(iso) {
   if (!iso) return '—';
   const d = new Date(iso);
@@ -52,7 +21,6 @@ function formatTime(iso) {
   return `${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 
-/* ── Escape HTML (chống XSS) ────────────────────────────── */
 function esc(s) {
   return String(s)
     .replace(/&/g, '&amp;')
@@ -61,7 +29,6 @@ function esc(s) {
     .replace(/"/g, '&quot;');
 }
 
-/* ── Snackbar thông báo ──────────────────────────────────── */
 let _snackTimer = null;
 function showSnack(msg, ms = 2800) {
   const el = document.getElementById('snack');
@@ -71,18 +38,16 @@ function showSnack(msg, ms = 2800) {
   _snackTimer = setTimeout(() => el.classList.remove('show'), ms);
 }
 
-/* ── Cập nhật thống kê ───────────────────────────────────── */
 function updateStats(data) {
-  const yesArr = data.filter(r => r.attend === 'yes');
-  const noArr  = data.filter(r => r.attend === 'no');
+  const yes    = data.filter(r => r.attend === 'yes').length;
+  const no     = data.filter(r => r.attend === 'no').length;
   const guests = data.reduce((s, r) => s + (r.attend === 'yes' ? (r.guests || 0) + 1 : 0), 0);
   document.getElementById('stat-total').textContent  = data.length;
-  document.getElementById('stat-yes').textContent    = yesArr.length;
-  document.getElementById('stat-no').textContent     = noArr.length;
+  document.getElementById('stat-yes').textContent    = yes;
+  document.getElementById('stat-no').textContent     = no;
   document.getElementById('stat-guests').textContent = guests;
 }
 
-/* ── Render bảng danh sách ───────────────────────────────── */
 function render() {
   const search  = document.getElementById('search-input').value.toLowerCase();
   const filterA = document.getElementById('filter-attend').value;
@@ -148,7 +113,7 @@ function render() {
   });
 }
 
-/* ── Confirm Dialog ──────────────────────────────────────── */
+/* ── Confirm Dialog ──────────────────────────────── */
 let _confirmCb = null;
 
 function openConfirm(icon, title, sub, cb) {

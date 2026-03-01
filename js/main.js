@@ -371,14 +371,21 @@ function closeRSVPToast() {
   document.body.style.overflow = '';
 }
 
-// Khởi tạo sự kiện đóng toast
-(function initRSVPToast() {
-  const btn     = document.getElementById('rsvp-toast-close');
-  const overlay = document.getElementById('rsvp-toast-overlay');
-  if (btn)     btn.addEventListener('click', closeRSVPToast);
-  if (overlay) overlay.addEventListener('click', function(e) {
-    if (e.target === overlay) closeRSVPToast();
+// Khởi tạo sự kiện cho RSVP toast và form
+(function initRSVP() {
+  // Toast: nút đóng và click overlay
+  const toastBtn     = document.getElementById('rsvp-toast-close');
+  const toastOverlay = document.getElementById('rsvp-toast-overlay');
+  if (toastBtn)     toastBtn.addEventListener('click', closeRSVPToast);
+  if (toastOverlay) toastOverlay.addEventListener('click', function(e) {
+    if (e.target === toastOverlay) closeRSVPToast();
   });
+
+  // Form: gắn submit
+  const form = document.getElementById('rsvp-form');
+  if (form) form.addEventListener('submit', submitRSVP);
+
+  // Phím Escape đóng toast
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeRSVPToast();
   });
@@ -412,17 +419,9 @@ function submitRSVP(e) {
   });
   localStorage.setItem('wedding_rsvp', JSON.stringify(rsvpList));
 
-  // Hiển thị toast đẹp
   showRSVPToast(name || 'bạn', attend);
   e.target.reset();
 }
-
-/* Gắn sự kiện submit form qua addEventListener (thay inline onsubmit) */
-(function initRSVPForm() {
-  const form = document.getElementById('rsvp-form');
-  if (form) form.addEventListener('submit', submitRSVP);
-})();
-
 
 /* ─────────────────────────────────────────────────────────
    LIGHTBOX – Xem ảnh phóng to khi click
