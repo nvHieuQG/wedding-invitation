@@ -11,7 +11,7 @@ window.addEventListener('load', function() {
 
 // 🔧 Dán URL Google Apps Script vào đây (cùng URL với main.js)
 // Xem file google-apps-script.js để biết cách tạo
-const SCRIPT_URL = '';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwyjRvE4QvmaWDQPYozWq6OKGmRhgphU9AlBmHLqk98bBmbPagkxPc2URy4R_msqsGH/exec';
 
 const KEY = 'wedding_rsvp';
 let appData = []; // Dữ liệu cache trên bộ nhớ
