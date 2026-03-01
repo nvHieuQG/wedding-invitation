@@ -11,6 +11,10 @@ const HEART_SPAWN_CHANCE = 0.05;   // Xác suất sinh tim mỗi frame
 const HEART_MAX          = 60;     // Số tim tối đa đồng thời
 const REVEAL_THRESHOLD   = 0.12;   // Ngưỡng IntersectionObserver
 
+// 🔧 Dán URL Google Apps Script vào đây (xem file google-apps-script.js để biết cách lấy)
+// Nếu để rỗng thì chỉ lưu localStorage (không chia sẻ được giữa các thiết bị)
+const SCRIPT_URL = '';
+
 /* ─────────────────────────────────────────────────────────
    HEARTS CANVAS – Trái tim rơi xuyên suốt
 ───────────────────────────────────────────────────────── */
@@ -406,9 +410,7 @@ function submitRSVP(e) {
     return;
   }
 
-  // Lưu vào localStorage
-  const rsvpList = JSON.parse(localStorage.getItem('wedding_rsvp') || '[]');
-  rsvpList.push({
+  const entry = {
     id:      Date.now(),
     name,
     phone,
@@ -416,8 +418,22 @@ function submitRSVP(e) {
     guests:  parseInt(guests, 10) || 0,
     message: msg,
     time:    new Date().toISOString(),
-  });
+  };
+
+  // 1. Lưu localStorage (backup cục bộ)
+  const rsvpList = JSON.parse(localStorage.getItem('wedding_rsvp') || '[]');
+  rsvpList.push(entry);
   localStorage.setItem('wedding_rsvp', JSON.stringify(rsvpList));
+
+  // 2. Gửi lên Google Sheets (nếu đã cấu hình SCRIPT_URL)
+  if (SCRIPT_URL) {
+    fetch(SCRIPT_URL, {
+      method:  'POST',
+      mode:    'no-cors', // Bế qua CORS, fire-and-forget
+      headers: { 'Content-Type': 'text/plain' },
+      body:    JSON.stringify(entry),
+    }).catch(function() {}); // Im lặng nếu gặp lỗi mạng
+  }
 
   showRSVPToast(name || 'bạn', attend);
   e.target.reset();

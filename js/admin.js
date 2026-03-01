@@ -9,10 +9,36 @@ window.addEventListener('load', function() {
 });
 
 
+// 🔧 Dán URL Google Apps Script vào đây (cùng URL với main.js)
+// Xem file google-apps-script.js để biết cách tạo
+const SCRIPT_URL = '';
+
 const KEY = 'wedding_rsvp';
+let appData = []; // Dữ liệu cache trên bộ nhớ
 
 function loadData()    { return JSON.parse(localStorage.getItem(KEY) || '[]'); }
 function saveData(arr) { localStorage.setItem(KEY, JSON.stringify(arr)); }
+
+// Đọc dữ liệu: ưu tiên từ Google Sheets, fallback về localStorage nếu chưa cấu hình
+function loadAllData(callback) {
+  if (SCRIPT_URL) {
+    // Hiển thị trạng thái đang tải
+    const wrap = document.getElementById('table-body-wrap');
+    if (wrap && !wrap.querySelector('table')) {
+      wrap.innerHTML = '<div class="empty-state"><span class="empty-icon">⏳</span><div class="empty-title">Đang tải dữ liệu...</div></div>';
+    }
+    fetch(SCRIPT_URL + (SCRIPT_URL.includes('?') ? '&' : '?') + '_t=' + Date.now())
+      .then(function(r) { return r.json(); })
+      .then(function(json) {
+        callback(json.ok ? json.data : loadData());
+      })
+      .catch(function() {
+        callback(loadData()); // Fallback localStorage khi mất mạng
+      });
+  } else {
+    callback(loadData());
+  }
+}
 
 function formatTime(iso) {
   if (!iso) return '—';
@@ -48,68 +74,75 @@ function updateStats(data) {
   document.getElementById('stat-guests').textContent = guests;
 }
 
-function render() {
+function renderTable() {
   const search  = document.getElementById('search-input').value.toLowerCase();
   const filterA = document.getElementById('filter-attend').value;
   const sortBy  = document.getElementById('filter-sort').value;
 
-  const allData = loadData();
-  updateStats(allData);
+  updateStats(appData);
 
-  let data = [...allData];
-  if (filterA) data = data.filter(r => r.attend === filterA);
-  if (search)  data = data.filter(r =>
-    (r.name    || '').toLowerCase().includes(search) ||
-    (r.phone   || '').toLowerCase().includes(search) ||
-    (r.message || '').toLowerCase().includes(search)
-  );
-  if (sortBy === 'newest') data.sort((a, b) => b.id - a.id);
-  else if (sortBy === 'oldest') data.sort((a, b) => a.id - b.id);
-  else if (sortBy === 'name')   data.sort((a, b) => (a.name||'').localeCompare(b.name||'', 'vi'));
+  let data = [...appData];
+    if (filterA) data = data.filter(r => r.attend === filterA);
+    if (search)  data = data.filter(r =>
+      (r.name    || '').toLowerCase().includes(search) ||
+      (r.phone   || '').toLowerCase().includes(search) ||
+      (r.message || '').toLowerCase().includes(search)
+    );
+    if (sortBy === 'newest') data.sort((a, b) => (b.id || 0) - (a.id || 0));
+    else if (sortBy === 'oldest') data.sort((a, b) => (a.id || 0) - (b.id || 0));
+    else if (sortBy === 'name')   data.sort((a, b) => (a.name||'').localeCompare(b.name||'', 'vi'));
 
-  document.getElementById('result-count').textContent = `${data.length} kết quả`;
-  const wrap = document.getElementById('table-body-wrap');
+    document.getElementById('result-count').textContent = `${data.length} kết quả`;
+    const wrap = document.getElementById('table-body-wrap');
 
-  if (data.length === 0) {
-    wrap.innerHTML = `
-      <div class="empty-state">
-        <span class="empty-icon">💌</span>
-        <div class="empty-title">Chưa có xác nhận nào</div>
-        <div class="empty-sub">Khi khách gửi form, danh sách sẽ hiển thị tại đây.</div>
-      </div>`;
-    return;
-  }
+    if (data.length === 0) {
+      wrap.innerHTML = `
+        <div class="empty-state">
+          <span class="empty-icon">💌</span>
+          <div class="empty-title">Chưa có xác nhận nào</div>
+          <div class="empty-sub">Khi khách gửi form, danh sách sẽ hiển thị tại đây.</div>
+        </div>`;
+      return;
+    }
 
-  const rows = data.map(r => {
-    const bc = r.attend === 'yes' ? 'badge-yes' : r.attend === 'no' ? 'badge-no' : 'badge-pending';
-    const bt = r.attend === 'yes' ? '✅ Tham dự' : r.attend === 'no' ? '❌ Không đến' : '⏳ Chưa chọn';
-    const g  = r.attend === 'yes' ? `+${r.guests || 0} người` : '—';
-    return `
-      <tr>
-        <td data-label="Họ và tên"     class="td-name">${esc(r.name   || '—')}</td>
-        <td data-label="Điện thoại"    class="td-phone">${esc(r.phone || '—')}</td>
-        <td data-label="Trạng thái"><span class="badge ${bc}">${bt}</span></td>
-        <td data-label="Người đi cùng">${g}</td>
-        <td data-label="Lời nhắn"      class="td-msg" title="${esc(r.message || '')}">${esc(r.message || '—')}</td>
-        <td data-label="Thời gian"     class="td-time">${formatTime(r.time)}</td>
-        <td><button class="btn-del" data-id="${r.id}" aria-label="Xóa xác nhận của ${esc(r.name || 'khách')}">🗑</button></td>
-      </tr>`;
-  }).join('');
-
-  wrap.innerHTML = `
-    <table>
-      <thead>
+    const rows = data.map(r => {
+      const bc = r.attend === 'yes' ? 'badge-yes' : r.attend === 'no' ? 'badge-no' : 'badge-pending';
+      const bt = r.attend === 'yes' ? '✅ Tham dự' : r.attend === 'no' ? '❌ Không đến' : '⏳ Chưa chọn';
+      const g  = r.attend === 'yes' ? `+${r.guests || 0} người` : '—';
+      return `
         <tr>
-          <th>Họ và tên</th><th>Điện thoại</th><th>Trạng thái</th>
-          <th>Người đi cùng</th><th>Lời nhắn</th><th>Thời gian</th><th></th>
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>`;
+          <td data-label="Họ và tên"     class="td-name">${esc(r.name   || '—')}</td>
+          <td data-label="Điện thoại"    class="td-phone">${esc(r.phone || '—')}</td>
+          <td data-label="Trạng thái"><span class="badge ${bc}">${bt}</span></td>
+          <td data-label="Người đi cùng">${g}</td>
+          <td data-label="Lời nhắn"      class="td-msg" title="${esc(r.message || '')}">${esc(r.message || '—')}</td>
+          <td data-label="Thời gian"     class="td-time">${formatTime(r.time)}</td>
+          <td><button class="btn-del" data-id="${r.id}" aria-label="Xóa xác nhận của ${esc(r.name || 'khách')}">🗑</button></td>
+        </tr>`;
+    }).join('');
 
-  // Gắn sự kiện xóa qua event delegation (tránh inline onclick)
-  wrap.querySelectorAll('.btn-del').forEach(btn => {
-    btn.addEventListener('click', () => confirmDelete(Number(btn.dataset.id)));
+    wrap.innerHTML = `
+      <table>
+        <thead>
+          <tr>
+            <th>Họ và tên</th><th>Điện thoại</th><th>Trạng thái</th>
+            <th>Người đi cùng</th><th>Lời nhắn</th><th>Thời gian</th><th></th>
+          </tr>
+        </thead>
+        <tbody>${rows}</tbody>
+      </table>`;
+
+    // Gắn sự kiện xóa qua event delegation
+    wrap.querySelectorAll('.btn-del').forEach(btn => {
+      btn.addEventListener('click', () => confirmDelete(Number(btn.dataset.id)));
+    });
+}
+
+// Hàm tải mới dữ liệu từ server rồi render
+function fetchAndRender() {
+  loadAllData(function(data) {
+    appData = data;
+    renderTable();
   });
 }
 
@@ -131,26 +164,35 @@ function closeConfirm() {
 }
 
 function confirmDelete(id) {
+  if (SCRIPT_URL) {
+    alert('⚠️ Bạn đang dùng Google Sheets. Vui lòng mở trang tính của bạn để xóa, thao tác xóa ở đây chỉ áp dụng cho bộ nhớ tạm.');
+    return;
+  }
   openConfirm('🗑️', 'Xóa xác nhận này?', 'Hành động này không thể hoàn tác.', () => {
-    saveData(loadData().filter(r => r.id !== id));
-    render();
+    appData = appData.filter(r => r.id !== id);
+    saveData(appData);
+    renderTable();
     showSnack('✅ Đã xóa xác nhận');
   });
 }
 
 function confirmClearAll() {
-  const n = loadData().length;
-  if (!n) { showSnack('Danh sách đang trống!'); return; }
-  openConfirm('⚠️', `Xóa tất cả ${n} xác nhận?`, 'Toàn bộ dữ liệu sẽ bị xóa vĩnh viễn.', () => {
+  if (SCRIPT_URL) {
+    alert('⚠️ Bạn đang dùng Google Sheets. Vui lòng mở trang tính của bạn để xóa dữ liệu.');
+    return;
+  }
+  if (!appData.length) { showSnack('Danh sách đang trống!'); return; }
+  openConfirm('⚠️', `Xóa tất cả ${appData.length} xác nhận?`, 'Toàn bộ dữ liệu sẽ bị xóa vĩnh viễn.', () => {
     localStorage.removeItem(KEY);
-    render();
+    appData = [];
+    renderTable();
     showSnack('🗑 Đã xóa toàn bộ danh sách');
   });
 }
 
 /* ── Xuất CSV ────────────────────────────────────────────── */
 function exportCSV() {
-  const data = loadData();
+  const data = appData;
   if (!data.length) { showSnack('Không có dữ liệu để xuất!'); return; }
   const header = ['ID', 'Họ tên', 'Điện thoại', 'Tham dự', 'Người đi cùng', 'Lời nhắn', 'Thời gian'];
   const rows = data.map(r => [
@@ -177,11 +219,13 @@ function exportCSV() {
 /* ── Khởi tạo ────────────────────────────────────────────── */
 function initAdmin() {
   // Controls
-  document.getElementById('search-input').addEventListener('input', render);
-  document.getElementById('filter-attend').addEventListener('change', render);
-  document.getElementById('filter-sort').addEventListener('change', render);
+  document.getElementById('search-input').addEventListener('input', renderTable);
+  document.getElementById('filter-attend').addEventListener('change', renderTable);
+  document.getElementById('filter-sort').addEventListener('change', renderTable);
 
   // Buttons
+  const btnRefresh = document.getElementById('btn-refresh');
+  if (btnRefresh) btnRefresh.addEventListener('click', fetchAndRender);
   document.getElementById('btn-export').addEventListener('click', exportCSV);
   document.getElementById('btn-clear').addEventListener('click', confirmClearAll);
   document.getElementById('btn-cancel').addEventListener('click', closeConfirm);
@@ -191,10 +235,10 @@ function initAdmin() {
     if (e.target === document.getElementById('confirm-overlay')) closeConfirm();
   });
 
-  // ✅ Thay setInterval bằng storage event để sync nhiều tab
+  // Thay setInterval bằng storage event để sync nhiều tab (chỉ khi dùng localStorage)
   window.addEventListener('storage', e => {
-    if (e.key === KEY) render();
+    if (e.key === KEY && !SCRIPT_URL) fetchAndRender();
   });
 
-  render();
+  fetchAndRender();
 }
